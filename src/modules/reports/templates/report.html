@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+    <style>
+    @page {
+        size: A4 portrait;
+        margin: 25mm 15mm 18mm 15mm;
+
+        @frame header_frame {
+            -pdf-frame-content: header_content;
+            left: 15mm;
+            top: 8mm;
+            width: 180mm;
+            height: 14mm;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content: footer_content;
+            left: 15mm;
+            bottom: 5mm;
+            width: 180mm;
+            height: 8mm;
+        }
+    }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 11pt;
+            color: #222222;
+        }
+
+        * {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        h1, h2 {
+            color: #16324f;
+        }
+
+        .box {
+            border: 1px solid #cccccc;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .small {
+            color: #666666;
+            font-size: 10pt;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #999999;
+            padding: 6px;
+            text-align: center;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #eeeeee;
+            text-align: center;
+        }
+
+        .logs-table {
+            table-layout: fixed;
+            width: 100%;
+            font-size: 8pt;
+            word-wrap: break-word;
+        }
+        .logs-table col.col-ts      { width: 16%; }
+        .logs-table col.col-event   { width: 22%; }
+        .logs-table col.col-ref     { width: 16%; }
+        .logs-table col.col-details { width: 46%; }
+    </style>
+</head>
+<body>
+
+    <div id="header_content" style="width: 100%; font-family: Helvetica, Arial, sans-serif;">
+        <p style="margin: 0; padding-bottom: 3px; font-size: 13pt; font-weight: bold; color: #000;">SQLiAgent</p>
+        <hr style="border: none; border-top: 2px solid #000; margin: 0;"/>
+    </div>
+
+    <div id="footer_content" style="width: 100%; font-family: Helvetica, Arial, sans-serif; text-align: right; font-size: 9pt; color: #666;">
+        Page <pdf:pagenumber/> of <pdf:pagecount/>
+    </div>
+
+    <h1>{{ titulo }}</h1>
+
+    <div class="box">
+        <p><strong>Job ID:</strong> {{ job.id }}</p>
+        {% if job.target_url %}<p><strong>Target:</strong> {{ job.target_url }}</p>{% endif %}
+        <p><strong>Type:</strong> {{ job.type }}</p>
+        <p><strong>Model:</strong> {{ job.model }}</p>
+        <p><strong>Date:</strong> {{ job.timestamp }}</p>
+    </div>
+
+    <div style="page-break-after: always;"></div>
+
+    {% if is_ia_job %}
+    <h2>AI-generated executive summary</h2>
+    <div class="box">
+        {{ summary_ai | safe }}
+    </div>
+
+    <div style="page-break-after: always;"></div>
+    {% endif %}
+
+    <h2>Global metrics</h2>
+    <div class="box">
+        <p><strong>Total hosts:</strong> {{ metrics.hosts_total }} ({{ metrics.hosts_done }} completed)</p>
+        <p><strong>Detected web apps:</strong> {{ metrics.webapps_total }}</p>
+        <p><strong>Crawled pages:</strong> {{ metrics.pages_crawled }}</p>
+        <p><strong>SQLi tested:</strong> {{ metrics.pages_tested }}</p>
+        <p><strong>SQLi confirmed:</strong> {{ metrics.sqli_confirmed }}</p>
+        <p><strong>Successful exploits:</strong> {{ metrics.exploits_success }}</p>
+        <p><strong>Databases obtained:</strong> {{ metrics.obtained_dbs }}</p>
+        <p><strong>Tables obtained:</strong> {{ metrics.obtained_tables }}</p>
+        <p><strong>Columns obtained:</strong> {{ metrics.obtained_columns }}</p>
+    </div>
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>Open ports</h2>
+    <table style="table-layout: fixed; width: 100%; font-size: 9pt; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 28%; border: 1px solid #999; padding: 6px; background: #eee;">Host</th>
+                <th style="width: 10%; border: 1px solid #999; padding: 6px; background: #eee;">Port</th>
+                <th style="width: 12%; border: 1px solid #999; padding: 6px; background: #eee;">State</th>
+                <th style="width: 20%; border: 1px solid #999; padding: 6px; background: #eee;">Service</th>
+                <th style="width: 30%; border: 1px solid #999; padding: 6px; background: #eee;">Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in ports %}
+            <tr>
+                <td style="width: 28%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ p.host }}</td>
+                <td style="width: 10%; border: 1px solid #999; padding: 6px;">{{ p.port }}</td>
+                <td style="width: 12%; border: 1px solid #999; padding: 6px;">{{ p.nmap_state }}</td>
+                <td style="width: 20%; border: 1px solid #999; padding: 6px;">{{ p.nmap_service }}</td>
+                <td style="width: 30%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ p.nmap_version }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>Detected web applications</h2>
+    <table style="table-layout: fixed; width: 100%; font-size: 8.5pt; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 22%; border: 1px solid #999; padding: 6px; background: #eee;">URL</th>
+                <th style="width: 20%; border: 1px solid #999; padding: 6px; background: #eee;">Technologies</th>
+                <th style="width: 16%; border: 1px solid #999; padding: 6px; background: #eee;">Cookies</th>
+                <th style="width: 26%; border: 1px solid #999; padding: 6px; background: #eee;">Headers</th>
+                <th style="width: 16%; border: 1px solid #999; padding: 6px; background: #eee;">Uncommon headers</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in webs %}
+            <tr>
+                <td style="width: 22%; border: 1px solid #999; padding: 6px;">{{ w.url | url_break }}</td>
+                <td style="width: 20%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ w.technologies }}</td>
+                <td style="width: 16%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ w.cookies }}</td>
+                <td style="width: 26%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ w.headers }}</td>
+                <td style="width: 16%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ w.uncommon_headers }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>Injection points</h2>
+    <table style="table-layout: fixed; width: 100%; font-size: 7.5pt; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 36%; border: 1px solid #999; padding: 5px; background: #eee;">URL</th>
+                <th style="width: 8%;  border: 1px solid #999; padding: 5px; background: #eee;">Method</th>
+                <th style="width: 28%; border: 1px solid #999; padding: 5px; background: #eee;">Injection points</th>
+                <th style="width: 28%; border: 1px solid #999; padding: 5px; background: #eee;">Injection types</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in findings %}
+            <tr>
+                <td style="width: 36%; border: 1px solid #999; padding: 5px;">{{ item.url | url_break }}</td>
+                <td style="width: 8%;  border: 1px solid #999; padding: 5px;">{{ item.method }}</td>
+                <td style="width: 28%; border: 1px solid #999; padding: 5px;">{{ item.injection_points | force_break }}</td>
+                <td style="width: 28%; border: 1px solid #999; padding: 5px;">{{ item.injection_types | force_break }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>Exploitation results</h2>
+    <table style="table-layout: fixed; width: 100%; font-size: 9pt; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 22%; border: 1px solid #999; padding: 6px; background: #eee;">Database</th>
+                <th style="width: 10%; border: 1px solid #999; padding: 6px; background: #eee;">Tables #</th>
+                <th style="width: 68%; border: 1px solid #999; padding: 6px; background: #eee;">Tables found</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in exploitation_results %}
+            <tr>
+                <td style="width: 22%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ item.db_name }}</td>
+                <td style="width: 10%; border: 1px solid #999; padding: 6px;">{{ item.tables_count }}</td>
+                <td style="width: 68%; border: 1px solid #999; padding: 6px; word-wrap: break-word;">{{ item.tables | join(', ') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="page-break-after: always;"></div>
+
+    {% if is_ia_job %}
+    <h2>Credential Analysis (AI)</h2>
+    <p style="font-size:8pt;color:#555;margin-bottom:8px;">AI analysis of credential-bearing tables found in exploited databases. Identifies user/password fields, hash types, session hijacking vectors and credential reuse risk.</p>
+    {{ ia_credentials_html }}
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>Admin User Injection (AI)</h2>
+    <p style="font-size:8pt;color:#555;margin-bottom:8px;">AI-generated SQL statements to insert a privileged administrator user into each exploitable database. Includes hash generation, auxiliary table population and fallback UPDATE strategies.</p>
+    {{ ia_admin_sql_html }}
+
+    <div style="page-break-after: always;"></div>
+    {% endif %}
+
+    <h2>Activity log</h2>
+    <table style="table-layout: fixed; width: 100%; font-size: 7.5pt; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="width: 16%; border: 1px solid #999; padding: 5px; background: #eee;">Timestamp</th>
+                <th style="width: 20%; border: 1px solid #999; padding: 5px; background: #eee;">Event</th>
+                <th style="width: 14%; border: 1px solid #999; padding: 5px; background: #eee;">Reference</th>
+                <th style="width: 50%; border: 1px solid #999; padding: 5px; background: #eee;">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in activity_logs %}
+            <tr>
+                <td style="width: 16%; border: 1px solid #999; padding: 5px;">{{ log.timestamp }}</td>
+                <td style="width: 20%; border: 1px solid #999; padding: 5px;">{{ log.event_type | force_break }}</td>
+                <td style="width: 14%; border: 1px solid #999; padding: 5px;">{{ log.reference_table }} #{{ log.reference_id }}</td>
+                <td style="width: 50%; border: 1px solid #999; padding: 5px;">{{ log.details_json | force_break }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
