@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────
+# DataBase
+# ─────────────────────────────────────────────────────────────────────────
+
+DB_DRIVER=mysql+pymysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=sqli_tfg
+DB_USER=root
+DB_PASSWORD=hola00==
+
+# ─────────────────────────────────────────────────────────────────────────
+# AI / LLM — consumed by src/ia/ia.py. The backend is chosen automatically
+# from the model name / URL port: a "gemini-*" model uses Gemini (IA_API_KEY);
+# a URL on :11434 uses Ollama; a URL on :8080 uses OpenWebUI (IA_LLAMA_API_KEY).
+# Set only what your chosen backend needs and leave the rest empty.
+# ─────────────────────────────────────────────────────────────────────────
+IA_MODELO=gemma3:12b
+IA_LLAMA_API_URL=http://10.0.1.4:11434/api/generate
+IA_API_KEY=
+IA_LLAMA_API_KEY=
+
+# ─────────────────────────────────────────────────────────────────────────
+# Debug. SQLiAgent's parameters
+# ─────────────────────────────────────────────────────────────────────────
+
+# Debug guard: when set, every module/tool that reaches out to a target
+# (nmap, whatweb, nikto, sqlmap, the crawler's own HTTP requests) refuses to
+# touch anything outside this host, so a debug run can't wander off scope.
+# Comment out the line below to disable the restriction (no scope limit):
+DEBUG_SCOPE_URL=http://10.0.0.12
+
+# Pre-filled into the "Target URL" field of the New Job modal (served via
+# GET /api/config). Leave unset to fall back to an empty field.
+DEFAULT_TARGET_URL=http://10.0.0.12
+
+### === WEB CRABLER CONFIG ===
+# WebCrawler tuning (modules/recon/WebCrawler.py) — all optional, defaults shown.
+
+# How many *unproductive* URLs sharing the same path+param-names pattern
+# (e.g. ?bID=1, ?bID=2, ...) get crawled before later ones are skipped as
+# duplicates. A variant that surfaces new in-scope links is never counted
+# against this budget, however many there are — only ones that fetch-fail
+# or lead nowhere new count. Raise to test more values per parameter at the
+# cost of crawl time; lower to crawl faster at the cost of coverage.
+CRAWLER_MAX_URL_PATTERN_VARIANTS=5
+
+# Max same-host redirects fetch_page() will follow for a single page before
+# giving up and keeping the last in-scope response. A redirect leaving scope
+# (different host) is never followed regardless of this limit.
+CRAWLER_MAX_REDIRECT_HOPS=10
+
+# Relaxes TLS (SECLEVEL=0, allows TLSv1.0) for https:// requests so ancient
+# servers that modern OpenSSL refuses by default (e.g. Apache/OpenSSL 0.9.8k
+# on the OWASP-BWA VM) can still be crawled. Set to false to use normal TLS
+# validation instead (https targets with only legacy TLS will then fail to
+# fetch rather than being crawled with weakened security).
+CRAWLER_LEGACY_TLS=true
+
+# Comma-separated user:password pairs tried against an HTTP Basic Auth
+# challenge (401 + WWW-Authenticate: Basic) before giving up on a page - e.g.
+# Java WebGoat gates its whole app behind guest/guest, so without this every
+# page past that 401 is invisible to the crawler. Once a pair works it's
+# reused for the rest of that app's session (see _session_for).
+CRAWLER_BASIC_AUTH_CREDENTIALS=guest:guest,webgoat:webgoat,admin:admin,tomcat:tomcat,admin:password
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Web server bind (read by src/Web/app.py). Default 127.0.0.1 = local only.
+# For access from another machine (LAN/server), set WEB_HOST=0.0.0.0 and open
+# the port in the server firewall. The dashboard has no authentication, so
+# only expose it on a trusted network or behind a proxy / SSH tunnel.
+# ─────────────────────────────────────────────────────────────────────────
+WEB_HOST=127.0.0.1
+WEB_PORT=8000
