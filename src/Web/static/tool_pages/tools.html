@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools — Web Security Analysis Suite</title>
+    <link rel="stylesheet" href="/websqli/static/_common/styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-brand">SQLiAgent</div>
+        <div class="navbar-tabs">
+            <a class="nav-tab" href="/websqli/">SQLiAnalyzed</a>
+            <a class="nav-tab" href="/websqli/webmap">WebMap</a>
+            <a class="nav-tab active" href="/websqli/tools">Tools</a>
+            <a class="nav-tab" href="/websqli/debug-timeline">Debug Timeline</a>
+            <a class="nav-tab" href="/websqli/debug-gt">Debug GT</a>
+        </div>
+        <div class="navbar-right">
+            <span id="orchestrator-warning" class="ad-warning">⚠️ SQLi Agent Orchestrator not running</span>
+        </div>
+    </nav>
+
+    <!-- Tools Section -->
+    <div id="section-tools" class="app-section" style="display:flex">
+    <div class="container">
+        <header class="tools-header-bar">
+            <span class="tools-header-title">Web Security Analysis</span>
+            <span class="tools-header-sub">Post Exploitation· Report · Individual Tools</span>
+        </header>
+
+        <main>
+            <!-- Tool Cards Grid -->
+            <div id="tools-grid">
+
+                <!-- Post Exploitation -->
+                <div class="tools-section">
+                    <div class="tools-section-title">🗄️ Post Exploitation</div>
+                    <div class="tools-grid">
+                        <div class="tool-card" data-tool="obtaindata">
+                            <div class="tool-card-icon">📥</div>
+                            <div class="tool-card-name">Obtain Data</div>
+                            <div class="tool-card-desc">Dump table data from exploited DBs</div>
+                        </div>
+                        <div class="tool-card" data-tool="dbanalyzer">
+                            <div class="tool-card-icon">🧠</div>
+                            <div class="tool-card-name">DB Analyzer</div>
+                            <div class="tool-card-desc">AI-powered database privilege analysis</div>
+                        </div>
+                        <div class="tool-card" data-tool="credentialhunter">
+                            <div class="tool-card-icon">🔑</div>
+                            <div class="tool-card-name">Credential Hunter</div>
+                            <div class="tool-card-desc">AI credential extraction from exploited DBs</div>
+                        </div>
+                        <div class="tool-card" data-tool="admininyector">
+                            <div class="tool-card-icon">💉</div>
+                            <div class="tool-card-name">Admin Injector</div>
+                            <div class="tool-card-desc">AI-generated SQL to create admin users</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report -->
+                <div class="tools-section">
+                    <div class="tools-section-title">📄 Report</div>
+                    <div class="tools-grid">
+                        <div class="tool-card" data-tool="reporter">
+                            <div class="tool-card-icon">📄</div>
+                            <div class="tool-card-name">Report</div>
+                            <div class="tool-card-desc">Generate &amp; download PDF report</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Individual Tools -->
+                <div class="tools-section">
+                    <div class="tools-section-title">🛠️ Individual Tools</div>
+                    <div class="tools-grid">
+                        <div class="tool-card" data-tool="scanner">
+                            <div class="tool-card-icon">🔍</div>
+                            <div class="tool-card-name">WebScanner</div>
+                            <div class="tool-card-desc">Port &amp; web technology analysis</div>
+                        </div>
+                        <div class="tool-card" data-tool="crawler">
+                            <div class="tool-card-icon">🕷️</div>
+                            <div class="tool-card-name">WebCrawler</div>
+                            <div class="tool-card-desc">Web crawling &amp; form detection</div>
+                        </div>
+                        <div class="tool-card" data-tool="detector">
+                            <div class="tool-card-icon">🎯</div>
+                            <div class="tool-card-name">WebDetector</div>
+                            <div class="tool-card-desc">SQL injection detection</div>
+                        </div>
+                        <div class="tool-card" data-tool="exploiter">
+                            <div class="tool-card-icon">💥</div>
+                            <div class="tool-card-name">SQLExploiter</div>
+                            <div class="tool-card-desc">Complete exploitation chain</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tool Detail View (hidden until a card is selected) -->
+            <div id="tool-detail" class="tool-detail" style="display:none">
+
+                <button id="back-btn" class="back-button">← Back to Tools</button>
+
+                <!-- WebScanner Form -->
+                <div id="scanner-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>🔍</span> WebScanner</h2>
+                    <div class="form-description">
+                        <p>Scans ports and analyzes web technologies using nmap and WhatWeb</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="scanner-ip">Target IP or URL</label>
+                        <input 
+                            type="text" 
+                            id="scanner-ip" 
+                            placeholder="192.168.1.1 or http://example.com"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button class="scan-button" data-tool="scanner">
+                        <span class="btn-text">Start Scan</span>
+                        <span class="btn-icon">🚀</span>
+                    </button>
+                </div>
+
+                <!-- WebCrawler Form -->
+                <div id="crawler-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>🕷️</span> WebCrawler</h2>
+                    <div class="form-description">
+                        <p>Crawls websites, detects forms and potential vulnerabilities</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="crawler-url">Target URL</label>
+                        <input 
+                            type="text" 
+                            id="crawler-url" 
+                            placeholder="http://example.com"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="params-grid">
+                        <div class="input-group">
+                            <label for="crawler-pages">Max Pages</label>
+                            <input type="number" id="crawler-pages" value="100" min="1" max="1000">
+                        </div>
+                        <div class="input-group">
+                            <label for="crawler-depth">Max Depth</label>
+                            <input type="number" id="crawler-depth" value="3" min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="crawler-skip-nikto">
+                            <span>Skip Nikto Scan</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="crawler-render">
+                            <span>Enable JavaScript Rendering (Playwright)</span>
+                        </label>
+                    </div>
+                    <button class="scan-button" data-tool="crawler">
+                        <span class="btn-text">Start Crawling</span>
+                        <span class="btn-icon">🕷️</span>
+                    </button>
+                </div>
+
+                <!-- WebDetector Form -->
+                <div id="detector-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>🎯</span> WebDetector</h2>
+                    <div class="form-description">
+                        <p>Detects SQL injection vulnerabilities using SQLMap</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Supports 3 modes: Direct URL, Web App ID, or Crawl Page ID</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="detector-mode">Detection Mode</label>
+                        <select id="detector-mode" class="script-dropdown">
+                            <option value="url">URL — Direct analysis (creates structure + mini-crawler)</option>
+                            <option value="webapp">Web App ID — Analyze all pages from existing webapp</option>
+                            <option value="page">Crawl Page ID — Analyze single crawled page</option>
+                        </select>
+                    </div>
+                    <div id="detector-url-inputs" class="mode-inputs">
+                        <div class="input-group">
+                            <label for="detector-url">Target URL</label>
+                            <input type="text" id="detector-url" placeholder="http://example.com" autocomplete="off">
+                        </div>
+                    </div>
+                    <div id="detector-webapp-inputs" class="mode-inputs" style="display: none;">
+                        <div class="input-group">
+                            <label for="detector-webapp-id">Web App ID</label>
+                            <input type="number" id="detector-webapp-id" placeholder="e.g., 2" min="1" autocomplete="off">
+                        </div>
+                    </div>
+                    <div id="detector-page-inputs" class="mode-inputs" style="display: none;">
+                        <div class="input-group">
+                            <label for="detector-page-id">Crawl Page ID</label>
+                            <input type="number" id="detector-page-id" placeholder="e.g., 15" min="1" autocomplete="off">
+                        </div>
+                    </div>
+                    <button class="scan-button" data-tool="detector">
+                        <span class="btn-text">Start Detection</span>
+                        <span class="btn-icon">🎯</span>
+                    </button>
+                </div>
+
+                <!-- SQLExploiter Form -->
+                <div id="exploiter-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>💥</span> SQLExploiter</h2>
+                    <div class="form-description">
+                        <p>Exploit detected SQL injection vulnerabilities</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Requires a SQLi Detector ID from a previously detected vulnerability</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="exploiter-sqli-id">SQLi Detector ID</label>
+                        <input 
+                            type="number" 
+                            id="exploiter-sqli-id" 
+                            placeholder="e.g., 5"
+                            min="1"
+                            autocomplete="off"
+                        >
+                        <small style="color: #888; font-size: 0.85em; margin-top: 4px; display: block;">
+                            Run WebDetector first to find vulnerabilities and get their IDs
+                        </small>
+                    </div>
+                    <button class="scan-button" data-tool="exploiter">
+                        <span class="btn-text">Start Exploitation</span>
+                        <span class="btn-icon">💥</span>
+                    </button>
+                </div>
+
+                <!-- Obtain Data Form -->
+                <div id="obtaindata-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>📥</span> Obtain Data</h2>
+                    <div class="form-description">
+                        <p>Dump rows from a specific table of a previously exploited database</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Select a database and a table, then click Execute to run sqlmap --dump</p>
+                    </div>
+
+                    <!-- Hidden: auto-populated from the selected DB -->
+                    <input type="hidden" id="obtaindata-sqli-id" value="">
+
+                    <div class="input-group">
+                        <label for="obtaindata-job">Job</label>
+                        <select id="obtaindata-job" class="script-dropdown obtain-data-select">
+                            <option value="">— All jobs —</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="obtaindata-db">Database</label>
+                        <select id="obtaindata-db" class="script-dropdown obtain-data-select">
+                            <option value="">— Loading databases… —</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="obtaindata-table">Table</label>
+                        <select id="obtaindata-table" class="script-dropdown obtain-data-select" disabled>
+                            <option value="">— Select a database first —</option>
+                        </select>
+                        <small id="obtaindata-sqli-hint" style="color:#888;font-size:0.82em;margin-top:4px;display:none;">
+                            SQLi Detector ID: <strong id="obtaindata-sqli-id-display"></strong>
+                        </small>
+                    </div>
+
+                    <button class="scan-button" data-tool="obtaindata" id="obtaindata-execute-btn" disabled>
+                        <span class="btn-text">Execute Dump</span>
+                        <span class="btn-icon">📥</span>
+                    </button>
+
+                    <!-- Table results rendered after dump completes -->
+                    <div id="obtaindata-table-results" class="obtain-data-table-wrap" style="display:none;">
+                        <div class="obtain-data-table-header">
+                            <span id="obtaindata-table-title" class="obtain-data-table-title"></span>
+                            <span id="obtaindata-table-count" class="obtain-data-table-count"></span>
+                        </div>
+                        <div id="obtaindata-table-body" class="obtain-data-table-body"></div>
+                    </div>
+                </div>
+
+                <!-- Reporter Form -->
+                <div id="reporter-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>📄</span> Report</h2>
+                    <div class="form-description">
+                        <p>Generate a full PDF security report for a completed job</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Includes AI executive summary, metrics, findings and exploitation results</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="reporter-job">Select Job</label>
+                        <select id="reporter-job" class="script-dropdown">
+                            <option value="">— Loading jobs… —</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="scan-button" id="reporter-generate-btn" disabled>
+                            <span class="btn-text">Generate &amp; Download Report</span>
+                            <span class="btn-icon">📄</span>
+                        </button>
+                        <button class="scan-button" id="reporter-csv-btn" disabled>
+                            <span class="btn-text">Download CSV pages</span>
+                            <span class="btn-icon">📊</span>
+                        </button>
+                    </div>
+                    <div id="reporter-status" style="margin-top: 14px; font-size: 0.92em; color: #aaa; display: none;"></div>
+                </div>
+
+                <!-- Credential Hunter Form -->
+                <div id="credentialhunter-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>🔑</span> Credential Hunter</h2>
+                    <div class="form-description">
+                        <p>AI analysis of exploited databases to identify credential-bearing tables, hash types and session hijacking vectors</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Select a job and click Run to start the AI analysis</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="credentialhunter-job">Select Job</label>
+                        <select id="credentialhunter-job" class="script-dropdown">
+                            <option value="">— Loading jobs… —</option>
+                        </select>
+                    </div>
+                    <button class="scan-button" id="credentialhunter-run-btn" disabled>
+                        <span class="btn-text">Run Analysis</span>
+                        <span class="btn-icon">🔑</span>
+                    </button>
+                    <div id="credentialhunter-status" style="margin-top: 14px; font-size: 0.92em; color: #aaa; display: none;"></div>
+                    <div id="credentialhunter-result" style="display: none; margin-top: 18px;">
+                        <div style="font-size: 0.85em; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.04em;">ANALYSIS RESULT</div>
+                        <pre id="credentialhunter-output" style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 16px; font-size: 0.82em; color: #c9d1d9; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+
+                <!-- Admin Injector Form -->
+                <div id="admininyector-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>💉</span> Admin Injector</h2>
+                    <div class="form-description">
+                        <p>AI-generated SQL statements to insert a privileged admin user into each exploitable database</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Select a job and click Generate SQL to start</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="admininyector-job">Select Job</label>
+                        <select id="admininyector-job" class="script-dropdown">
+                            <option value="">— Loading jobs… —</option>
+                        </select>
+                    </div>
+                    <button class="scan-button" id="admininyector-run-btn" disabled>
+                        <span class="btn-text">Generate SQL</span>
+                        <span class="btn-icon">💉</span>
+                    </button>
+                    <div id="admininyector-status" style="margin-top: 14px; font-size: 0.92em; color: #aaa; display: none;"></div>
+                    <div id="admininyector-result" style="display: none; margin-top: 18px;">
+                        <div style="font-size: 0.85em; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.04em;">GENERATED SQL</div>
+                        <pre id="admininyector-output" style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 16px; font-size: 0.82em; color: #c9d1d9; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+                <div id="dbanalyzer-form" class="tool-form">
+                    <h2 class="tool-detail-title"><span>🧠</span> DB Analyzer</h2>
+                    <div class="form-description">
+                        <p>AI-powered analysis of database structure to identify privileged user tables and fields</p>
+                        <p style="font-size: 0.9em; color: #888; margin-top: 8px;">Select a job and a database obtained in that job, then click Analyse</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="dbanalyzer-job">Select Job</label>
+                        <select id="dbanalyzer-job" class="script-dropdown">
+                            <option value="">— Loading jobs… —</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="dbanalyzer-db">Select Database</label>
+                        <select id="dbanalyzer-db" class="script-dropdown" disabled>
+                            <option value="">— Select a job first —</option>
+                        </select>
+                    </div>
+                    <button class="scan-button" id="dbanalyzer-analyse-btn" disabled>
+                        <span class="btn-text">Analyse</span>
+                        <span class="btn-icon">🧠</span>
+                    </button>
+                    <div id="dbanalyzer-status" style="margin-top: 14px; font-size: 0.92em; color: #aaa; display: none;"></div>
+                    <div id="dbanalyzer-result" style="display: none; margin-top: 18px;">
+                        <div style="font-size: 0.85em; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.04em;">ANALYSIS RESULT</div>
+                        <pre id="dbanalyzer-output" style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 16px; font-size: 0.82em; color: #c9d1d9; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+
+                <div id="status" class="status-message"></div>
+
+                <div id="results-container" class="results-container" style="display: none;">
+                    <div class="results-header">
+                        <h2>📊 Results</h2>
+                        <button id="clear-btn" class="clear-button">Clear</button>
+                    </div>
+                    <pre id="output" class="output-terminal"></pre>
+                </div>
+
+            </div><!-- /tool-detail -->
+        </main>
+
+        <footer></footer>
+    </div>
+    </div> <!-- /section-tools -->
+
+    <!-- API Layer -->
+    <script src="/websqli/static/_common/api.js"></script>
+    <!-- UI Logic -->
+    <script src="/websqli/static/tool_pages/app.js"></script>
+</body>
+</html>

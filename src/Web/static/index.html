@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline — Web Security Analysis Suite</title>
+    <link rel="stylesheet" href="/websqli/static/_common/styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-brand">SQLiAgent</div>
+        <div class="navbar-tabs">
+            <a class="nav-tab active" href="/websqli/">SQLiAnalyzed</a>
+            <a class="nav-tab" href="/websqli/webmap">WebMap</a>
+            <a class="nav-tab" href="/websqli/tools">Tools</a>
+            <a class="nav-tab" href="/websqli/debug-timeline">Debug Timeline</a>
+            <a class="nav-tab" href="/websqli/debug-gt">Debug GT</a>
+        </div>
+        <div class="navbar-right">
+            <span id="orchestrator-warning" class="ad-warning">⚠️ SQLi Agent Orchestrator not running</span>
+        </div>
+    </nav>
+
+    <!-- New Job Modal -->
+    <div id="new-job-modal" class="modal-overlay" style="display:none">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 class="modal-title">New Job</h3>
+                <button class="modal-close-btn" id="close-new-job-modal-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Execution Mode</label>
+                    <div class="sqlic-mode-toggle">
+                        <button class="sqlic-mode-btn active" id="modal-mode-iterative" data-mode="iterative">Iterative</button>
+                        <button class="sqlic-mode-btn" id="modal-mode-ia" data-mode="ia">AI</button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="modal-target-url">Target URL</label>
+                    <input type="text" id="modal-target-url" placeholder="http://192.168.1.1" autocomplete="off">
+                    <small style="color:#888;font-size:0.85em;margin-top:4px;display:block;">
+                        Make sure SQLiAgentOrchestrator.py is running in background
+                    </small>
+                </div>
+                <div class="input-group">
+                    <label for="modal-depth">Search Tree Depth</label>
+                    <input type="number" id="modal-depth" value="4" min="1" max="20" style="width:80px;">
+                    <small style="color:#888;font-size:0.85em;margin-top:4px;display:block;">
+                        Maximum depth of the crawl tree (default: 4)
+                    </small>
+                </div>
+                <div class="input-group">
+                    <label for="modal-comment">Comment (optional)</label>
+                    <input type="text" id="modal-comment" placeholder="e.g. First IA run on owaspbricks" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="scan-button" id="modal-start-btn" style="width:100%">
+                    <span class="btn-text">Start Pipeline</span>
+                </button>
+                <div id="modal-status" class="status-message" style="margin-top:12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="task-detail-modal" class="modal-overlay" style="display:none">
+        <div class="modal-dialog v2-task-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="task-modal-title">Task detail</h3>
+                <button class="modal-close-btn" id="close-task-modal-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="v2-task-priority" id="task-modal-priority" style="display:none"></div>
+                <dl class="v2-task-detail-list" id="task-modal-body"></dl>
+                <div class="v2-log-section" id="task-modal-log-section" style="display:none">
+                    <div class="v2-log-label">Log</div>
+                    <pre class="v2-log-pre" id="task-modal-log"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline (V2) Section -->
+    <div id="section-v2" class="app-section sqliagent-layout">
+
+        <!-- Job selection, relocated from the navbar -->
+        <div class="page-toolbar">
+            <span class="page-toolbar-label">Job</span>
+            <select id="job-selector" class="job-selector">
+                <option value="">— Select a job —</option>
+            </select>
+            <button class="new-job-btn" id="open-new-job-modal-btn">+ New Job</button>
+        </div>
+
+        <!-- Shown only when no job is selected -->
+        <div id="v2-empty-state" class="page-empty-state">No job selected.</div>
+
+        <!-- Shown only once a job is selected -->
+        <div id="v2-body" class="page-body-wrap" style="display:none">
+
+        <!-- Top area: summary row + filters + kanban board -->
+        <div class="v2-top">
+
+            <div class="v2-section-header">📊 Stats</div>
+
+            <!-- Summary row: brief job summary + main stats -->
+            <div class="v2-top-pad">
+                <div class="v2-summary-row">
+                    <div class="v2-summary-card">
+                        <div id="job-info-panel" class="job-info-panel">
+                            <p class="job-info-empty">No job selected.<br>
+                                Use the selector above to view a specific job,<br>
+                                or <strong>+ New Job</strong> to launch a new analysis.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="v2-stats-tiles" id="v2-stats-tiles">
+                        <p class="no-agents">Select a job to see stats</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="v2-section-header">📡 Analysis Status</div>
+
+            <div class="v2-top-pad">
+                <!-- Filters -->
+                <div class="v2-filters">
+                    <span class="v2-filters-label">Filter</span>
+                    <button class="v2-filter-chip active" data-state="pending">⏳ Pending</button>
+                    <button class="v2-filter-chip active" data-state="running">🔄 Running</button>
+                    <button class="v2-filter-chip active" data-state="done">✅ Done</button>
+                    <button class="v2-filter-chip active" data-state="error">❌ Error</button>
+                    <input type="text" id="v2-search" class="v2-search-input" placeholder="Filter by URL / text…">
+                    <button class="sqlic-refresh-btn" id="v2-refresh-btn" title="Refresh">🔄 Refresh</button>
+                </div>
+
+            <!-- Kanban board: tasks flow left → right through the pipeline -->
+            <div class="v2-board" id="v2-board">
+                <div class="v2-col" data-col="scanner">
+                    <div class="v2-col-header">
+                        <span class="v2-col-icon">🖥️</span>
+                        <span class="v2-col-title">Scanner</span>
+                        <span class="v2-col-count" id="v2-count-scanner">0</span>
+                    </div>
+                    <div class="v2-col-body" id="v2-body-scanner"><p class="v2-col-empty">Empty</p></div>
+                </div>
+                <div class="v2-col" data-col="crawler">
+                    <div class="v2-col-header">
+                        <span class="v2-col-icon">🕷️</span>
+                        <span class="v2-col-title">Crawler</span>
+                        <span class="v2-col-count" id="v2-count-crawler">0</span>
+                        <button type="button" class="v2-col-badge v2-col-badge-error active" id="v2-count-crawler-error" data-crawler-filter="error" title="Toggle Error">❌ 0</button>
+                    </div>
+                    <div class="v2-col-body" id="v2-body-crawler"><p class="v2-col-empty">Empty</p></div>
+                </div>
+                <div class="v2-col" data-col="scorer">
+                    <div class="v2-col-header">
+                        <span class="v2-col-icon">🧠</span>
+                        <span class="v2-col-title">Scorer</span>
+                        <span class="v2-col-count" id="v2-count-scorer">0</span>
+                    </div>
+                    <div class="v2-col-body" id="v2-body-scorer"><p class="v2-col-empty">Empty</p></div>
+                </div>
+                <div class="v2-col v2-col-wide" data-col="detector">
+                    <div class="v2-col-header">
+                        <span class="v2-col-icon">🎯</span>
+                        <span class="v2-col-title">Detector</span>
+                        <span class="v2-col-count" id="v2-count-detector">0</span>
+                        <button type="button" class="v2-col-badge v2-col-badge-safe active" id="v2-count-detector-safe" data-detector-filter="safe" title="Toggle Safe">🟢 0</button>
+                        <button type="button" class="v2-col-badge v2-col-badge-vuln active" id="v2-count-detector-vulnerable" data-detector-filter="vulnerable" title="Toggle Vulnerable">🔴 0</button>
+                        <button type="button" class="v2-col-badge v2-col-badge-error active" id="v2-count-detector-error" data-detector-filter="error" title="Toggle Error">❌ 0</button>
+                        <button type="button" class="v2-col-badge v2-col-badge-discarded active" id="v2-count-detector-discarded" data-detector-filter="discarded" title="Toggle Discarded">⏭ 0</button>
+                    </div>
+                    <div class="v2-col-body" id="v2-body-detector"><p class="v2-col-empty">Empty</p></div>
+                </div>
+                <div class="v2-col" data-col="exploiter">
+                    <div class="v2-col-header">
+                        <span class="v2-col-icon">💥</span>
+                        <span class="v2-col-title">Exploiter</span>
+                        <span class="v2-col-count" id="v2-count-exploiter">0</span>
+                    </div>
+                    <div class="v2-col-body" id="v2-body-exploiter"><p class="v2-col-empty">Empty</p></div>
+                </div>
+            </div>
+            </div>
+
+        </div>
+
+        <div class="v2-section-header">📋 Results</div>
+
+        <!-- Tab selector — placed above the detail panels (unlike SQLiAgent,
+             which keeps it as a bottom bar) -->
+        <nav class="sqlic-bottom-bar v2-tabs-top">
+            <button class="sqlic-tab active" data-panel="sqlic-scanner">
+                <span class="sqlic-tab-icon">🖥️</span>
+                <span class="sqlic-tab-label">Scanner</span>
+            </button>
+            <button class="sqlic-tab" data-panel="sqlic-crawler">
+                <span class="sqlic-tab-icon">🕷️</span>
+                <span class="sqlic-tab-label">Crawler</span>
+            </button>
+            <button class="sqlic-tab" data-panel="sqlic-detector">
+                <span class="sqlic-tab-icon">🎯</span>
+                <span class="sqlic-tab-label">Detector</span>
+            </button>
+            <button class="sqlic-tab" data-panel="sqlic-exploiter">
+                <span class="sqlic-tab-icon">💥</span>
+                <span class="sqlic-tab-label">Exploiter</span>
+            </button>
+            <button class="sqlic-tab" data-panel="sqlic-dumper">
+                <span class="sqlic-tab-icon">🗃️</span>
+                <span class="sqlic-tab-label">Dumper</span>
+            </button>
+        </nav>
+
+        <!-- Subsection content -->
+        <div class="sqliagent-content">
+
+            <!-- Scanner -->
+            <div id="sqlic-scanner" class="sqlic-panel active">
+                <div class="scanner-status-header">
+                    <h3 class="sqlic-panel-title">🔍 Scanner Results</h3>
+                    <button id="scanner-manual-refresh" class="sqlic-refresh-btn" title="Refresh data">🔄 Refresh</button>
+                </div>
+
+                <!-- Hosts -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🖥️</span>
+                        <h4 class="scanner-section-title">Hosts</h4>
+                        <span id="scanner-hosts-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="scanner-hosts-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No hosts yet</p>
+                    </div>
+                </div>
+
+                <!-- Web Apps -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🌐</span>
+                        <h4 class="scanner-section-title">Web Apps</h4>
+                        <span id="scanner-webapps-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="scanner-webapps-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No web apps yet</p>
+                    </div>
+                </div>
+
+                <!-- Nmap -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">📡</span>
+                        <h4 class="scanner-section-title">Nmap Results</h4>
+                        <span id="scanner-nmap-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="scanner-nmap-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No nmap results yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crawler -->
+            <div id="sqlic-crawler" class="sqlic-panel">
+                <div class="scanner-status-header">
+                    <h3 class="sqlic-panel-title">🕷️ Crawler Results</h3>
+                    <button id="crawler-manual-refresh" class="sqlic-refresh-btn" title="Refresh data">🔄 Refresh</button>
+                </div>
+
+                <!-- Crawl Pages -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">📄</span>
+                        <h4 class="scanner-section-title">Crawl Pages</h4>
+                        <span id="crawler-pages-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="crawler-pages-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No crawl pages yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="crawler-pages-pagination" style="display:none">
+                        <button class="page-btn" id="crawler-pages-prev" disabled>← Prev</button>
+                        <span class="page-info" id="crawler-pages-info">-</span>
+                        <button class="page-btn" id="crawler-pages-next" disabled>Next →</button>
+                    </div>
+                </div>
+
+                <!-- Crawl Page Details -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">📝</span>
+                        <h4 class="scanner-section-title">Crawl Page Details</h4>
+                        <span id="crawler-details-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="crawler-details-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No crawl page details yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="crawler-details-pagination" style="display:none">
+                        <button class="page-btn" id="crawler-details-prev" disabled>← Prev</button>
+                        <span class="page-info" id="crawler-details-info">-</span>
+                        <button class="page-btn" id="crawler-details-next" disabled>Next →</button>
+                    </div>
+                </div>
+
+                <!-- Nikto Discoveries -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🔍</span>
+                        <h4 class="scanner-section-title">Nikto Discoveries</h4>
+                        <span id="crawler-nikto-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="crawler-nikto-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No Nikto discoveries yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="crawler-nikto-pagination" style="display:none">
+                        <button class="page-btn" id="crawler-nikto-prev" disabled>← Prev</button>
+                        <span class="page-info" id="crawler-nikto-info">-</span>
+                        <button class="page-btn" id="crawler-nikto-next" disabled>Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detector -->
+            <div id="sqlic-detector" class="sqlic-panel">
+                <div class="scanner-status-header">
+                    <h3 class="sqlic-panel-title">🎯 Detector Results</h3>
+                    <button id="detector-manual-refresh" class="sqlic-refresh-btn" title="Refresh data">🔄 Refresh</button>
+                </div>
+
+                <!-- SQLi Detections -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🎯</span>
+                        <h4 class="scanner-section-title">SQLi Detections</h4>
+                        <span id="detector-detections-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="detector-detections-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No detections yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="detector-detections-pagination" style="display:none">
+                        <button class="page-btn" id="detector-detections-prev" disabled>← Prev</button>
+                        <span class="page-info" id="detector-detections-info">-</span>
+                        <button class="page-btn" id="detector-detections-next" disabled>Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exploiter -->
+            <div id="sqlic-exploiter" class="sqlic-panel">
+                <div class="scanner-status-header">
+                    <h3 class="sqlic-panel-title">💥 Exploiter Results</h3>
+                    <button id="exploiter-manual-refresh" class="sqlic-refresh-btn" title="Refresh data">🔄 Refresh</button>
+                </div>
+
+                <!-- SQLi Exploits -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">💥</span>
+                        <h4 class="scanner-section-title">Exploits</h4>
+                        <span id="exploiter-exploits-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="exploiter-exploits-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No exploits yet</p>
+                    </div>
+                </div>
+
+                <!-- Exploit Tables -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🗄️</span>
+                        <h4 class="scanner-section-title">Exploit Tables</h4>
+                        <span id="exploiter-tables-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="exploiter-tables-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No exploit tables yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="exploiter-tables-pagination" style="display:none">
+                        <button class="page-btn" id="exploiter-tables-prev" disabled>← Prev</button>
+                        <span class="page-info" id="exploiter-tables-info">-</span>
+                        <button class="page-btn" id="exploiter-tables-next" disabled>Next →</button>
+                    </div>
+                </div>
+
+                <!-- Exploit Columns -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🔢</span>
+                        <h4 class="scanner-section-title">Exploit Columns</h4>
+                        <span id="exploiter-columns-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="exploiter-columns-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No exploit columns yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="exploiter-columns-pagination" style="display:none">
+                        <button class="page-btn" id="exploiter-columns-prev" disabled>← Prev</button>
+                        <span class="page-info" id="exploiter-columns-info">-</span>
+                        <button class="page-btn" id="exploiter-columns-next" disabled>Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dumper -->
+            <div id="sqlic-dumper" class="sqlic-panel">
+                <div class="scanner-status-header">
+                    <h3 class="sqlic-panel-title">🗃️ Dumper Results</h3>
+                    <button id="dumper-manual-refresh" class="sqlic-refresh-btn" title="Refresh data">🔄 Refresh</button>
+                </div>
+
+                <!-- Dump Data -->
+                <div class="scanner-data-section">
+                    <div class="scanner-section-header collapsible collapsed">
+                        <span class="scanner-section-icon">🗃️</span>
+                        <h4 class="scanner-section-title">Dump Data</h4>
+                        <span id="dumper-data-count" class="scanner-section-count">0</span>
+                        <span class="collapse-chevron">▼</span>
+                    </div>
+                    <div id="dumper-data-table-wrap" class="scanner-table-wrap section-body" style="display:none">
+                        <p class="no-agents">No dump data yet</p>
+                    </div>
+                    <div class="pagination-bar section-body" id="dumper-data-pagination" style="display:none">
+                        <button class="page-btn" id="dumper-data-prev" disabled>← Prev</button>
+                        <span class="page-info" id="dumper-data-info">-</span>
+                        <button class="page-btn" id="dumper-data-next" disabled>Next →</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        </div>
+
+    </div>
+
+    <!-- API Layer -->
+    <script src="/websqli/static/_common/api.js"></script>
+    <!-- UI Logic (job selector, new job modal, bottom detail tabs) -->
+    <script src="/websqli/static/tool_pages/app.js"></script>
+    <!-- V2 pipeline board -->
+    <script src="/websqli/static/tool_pages/pipeline.js"></script>
+</body>
+</html>

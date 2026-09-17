@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Timeline — Web Security Analysis Suite</title>
+    <link rel="stylesheet" href="/websqli/static/_common/styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-brand">SQLiAgent</div>
+        <div class="navbar-tabs">
+            <a class="nav-tab" href="/websqli/">SQLiAnalyzed</a>
+            <a class="nav-tab" href="/websqli/webmap">WebMap</a>
+            <a class="nav-tab" href="/websqli/tools">Tools</a>
+            <a class="nav-tab active" href="/websqli/debug-timeline">Debug Timeline</a>
+            <a class="nav-tab" href="/websqli/debug-gt">Debug GT</a>
+        </div>
+        <div class="navbar-right">
+            <span id="orchestrator-warning" class="ad-warning">⚠️ SQLi Agent Orchestrator not running</span>
+        </div>
+    </nav>
+
+    <!-- Debug Timeline Section -->
+    <div id="section-debug-timeline" class="app-section viz-root">
+        <div id="tl-body" class="page-body-wrap">
+            <div class="wm-header">
+                <h2 class="wm-title">Debug Timeline — vulnerabilities found vs. job time</h2>
+                <span id="tl-summary" class="wm-job-label"></span>
+            </div>
+
+            <div class="timeline-toolbar-row">
+                <span class="timeline-hint">Select up to 8 jobs to compare. Each line is the cumulative count of distinct ground-truth pages found vulnerable since that job started — the same "found/N" number as Debug GT's summary for that job, plotted over time instead of as a single snapshot.</span>
+                <span class="timeline-toolbar-actions">
+                    <button type="button" id="tl-download-svg-btn" class="page-btn" title="Download this chart as a vector SVG">⬇️ SVG</button>
+                    <button type="button" id="tl-table-toggle" class="page-btn">📋 Show table</button>
+                </span>
+            </div>
+
+            <div id="tl-job-picker" class="timeline-job-picker">
+                <span class="no-agents">Loading jobs…</span>
+            </div>
+
+            <div class="timeline-chart-card">
+                <div class="timeline-chart-canvas-wrap">
+                    <canvas id="tl-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="wm-header">
+                <h2 class="wm-title">Distinct projects found vulnerable vs. job time</h2>
+                <span id="tl-apps-summary" class="wm-job-label"></span>
+            </div>
+            <div class="timeline-toolbar-row">
+                <span class="timeline-hint">Same jobs/colors as above. A line steps up the first time a new ground-truth project (app) gets at least one confirmed vulnerability — same app grouping as Debug GT's "Coverage by app".</span>
+                <span class="timeline-toolbar-actions">
+                    <button type="button" id="tl-apps-download-svg-btn" class="page-btn" title="Download this chart as a vector SVG">⬇️ SVG</button>
+                </span>
+            </div>
+            <div class="timeline-chart-card">
+                <div class="timeline-chart-canvas-wrap">
+                    <canvas id="tl-chart-apps"></canvas>
+                </div>
+            </div>
+
+            <div id="tl-table-section" class="scanner-data-section" style="display:none">
+                <div class="scanner-section-header">
+                    <span class="scanner-section-icon">📋</span>
+                    <h4 class="scanner-section-title">Data table</h4>
+                </div>
+                <div class="scanner-table-wrap" id="tl-table-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Layer -->
+    <script src="/websqli/static/_common/api.js"></script>
+    <!-- Chart.js (vendored locally, no CDN dependency) -->
+    <script src="/websqli/static/_common/vendor/chart.umd.min.js"></script>
+    <!-- Debug Timeline -->
+    <script src="/websqli/static/debug_pages/debug_timeline.js"></script>
+    <script>
+        tlStart();
+    </script>
+</body>
+</html>

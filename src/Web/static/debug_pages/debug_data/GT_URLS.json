@@ -1,0 +1,212 @@
+{
+    "gt_pages": [
+        {
+            "app": "WackoPicko",
+            "url": "http://10.0.0.12/WackoPicko/users/login.php"
+        },
+        {
+            "app": "Mutillidae",
+            "url": "http://10.0.0.12/mutillidae/index.php"
+        },
+        {
+            "app": "Mutillidae",
+            "url": "http://10.0.0.12/mutillidae/includes/pop-up-help-context-generator.php"
+        },
+        {
+            "app": "Mutillidae",
+            "url": "http://10.0.0.12/mutillidae/level-1-hints-page-wrapper.php"
+        },
+        {
+            "app": "Mutillidae",
+            "url": "http://10.0.0.12/mutillidae/webservices/rest/ws-user-account.php"
+        },
+        {
+            "app": "Getboo",
+            "url": "http://10.0.0.12/getboo/comment.php"
+        },
+        {
+            "app": "Getboo",
+            "url": "http://10.0.0.12/getboo/forgotpass.php"
+        },
+        {
+            "app": "Getboo",
+            "url": "http://10.0.0.12/getboo/activate.php"
+        },
+        {
+            "app": "Getboo",
+            "url": "http://10.0.0.12/getboo/redirect.php"
+        },
+        {
+            "app": "Vicnum",
+            "url": "http://10.0.0.12/vicnum/guessnum5.php"
+        },
+        {
+            "app": "Vicnum",
+            "url": "http://10.0.0.12/vicnum/unionguessnum.php"
+        },
+        {
+            "app": "Vicnum",
+            "url": "http://10.0.0.12/vicnum/unionjotto.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-1/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-2/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-3/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-4/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-5/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/login-6/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/content-1/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/content-2/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/content-3/index.php"
+        },
+        {
+            "app": "OWASP Bricks",
+            "url": "http://10.0.0.12/owaspbricks/content-6/index.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processProject.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processGoal.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processNote.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/updateGoal.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processItemUpdate.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/listChecklist.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/listItems.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/updateCategory.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/updateProject"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/editChecklistItem.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processItem.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processListUpdate.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/updateListItem.php"
+        },
+        {
+            "app": "Peruggia",
+            "url": "http://10.0.0.12/peruggia/index.php"
+        },
+        {
+            "app": "GTD-PHP",
+            "url": "http://10.0.0.12/gtd-php/processProjectUpdate.php"
+        },
+        {
+            "app": "Ghost",
+            "url": "http://10.0.0.12/ghost/blogView.php"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/WebGoatCoins/CustomerLogin.aspx"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/RebuildDatabase.aspx"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/Content/ForgotPassword.aspx"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/Content/SQLInjection.aspx"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/Content/StoredXSS.aspx"
+        },
+        {
+            "app": "WebGoat.NET",
+            "url": "http://10.0.0.12/webgoat.net/WebGoatCoins/ForgotPassword.aspx"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/cryptomg/ctf/challenge4/index.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/sqlol/select.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/cryptomg/ctf/challenge2/index.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/xssmh/xss.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/sqlol/delete.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/sqlol/update.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/xmlmao/xmlinjection.php"
+        },
+        {
+            "app": "MCIR",
+            "url": "http://10.0.0.12/MCIR/sqlol/custom.php"
+        }
+    ]
+}

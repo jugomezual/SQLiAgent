@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebMap — Web Security Analysis Suite</title>
+    <link rel="stylesheet" href="/websqli/static/_common/styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-brand">SQLiAgent</div>
+        <div class="navbar-tabs">
+            <a class="nav-tab" href="/websqli/">SQLiAnalyzed</a>
+            <a class="nav-tab active" href="/websqli/webmap">WebMap</a>
+            <a class="nav-tab" href="/websqli/tools">Tools</a>
+            <a class="nav-tab" href="/websqli/debug-timeline">Debug Timeline</a>
+            <a class="nav-tab" href="/websqli/debug-gt">Debug GT</a>
+        </div>
+        <div class="navbar-right">
+            <span id="orchestrator-warning" class="ad-warning">⚠️ SQLi Agent Orchestrator not running</span>
+        </div>
+    </nav>
+
+    <!-- WebMap Section -->
+    <div id="section-webmap" class="app-section">
+        <!-- Job selection, relocated from the navbar -->
+        <div class="page-toolbar">
+            <span class="page-toolbar-label">Job</span>
+            <select id="job-selector" class="job-selector">
+                <option value="">— Select a job —</option>
+            </select>
+        </div>
+
+        <!-- Shown only when no job is selected -->
+        <div id="wm-empty-state" class="page-empty-state">No job selected.</div>
+
+        <!-- Shown only once a job is selected -->
+        <div id="wm-body" class="page-body-wrap" style="display:none">
+        <div class="wm-header">
+            <h2 class="wm-title">WebMap</h2>
+            <span id="wm-job-label" class="wm-job-label">All Jobs</span>
+            <button class="wm-collapse-btn" onclick="wmCollapseAll()" title="Collapse safe/pending branches, keep vulnerable and exploited paths open">Collapse All</button>
+            <span id="wm-refresh-indicator" class="wm-refresh-indicator"></span>
+        </div>
+        <div id="wm-tree-container" class="wm-tree-container">
+            <p class="wm-empty">Select a job to view the WebMap.</p>
+        </div>
+        </div>
+    </div>
+
+    <!-- API Layer -->
+    <script src="/websqli/static/_common/api.js"></script>
+    <!-- WebMap -->
+    <script src="/websqli/static/tool_pages/webmap.js"></script>
+    <script>
+        // Job selector logic
+        let selectedJobId = null;
+
+        async function loadJobsSelector() {
+            try {
+                const data = await API.getJobs();
+                const jobs = data.jobs || [];
+                const sel = document.getElementById('job-selector');
+                if (!sel) return;
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">— Select a job —</option>';
+                for (const j of jobs) {
+                    const type    = j.type || 'Normal';
+                    const model   = j.model ? ` · ${j.model}` : '';
+                    const target  = j.target_url ? ` ${j.target_url}` : '';
+                    const comment = j.comment ? ` — ${j.comment}` : '';
+                    const ts      = j.timestamp ? ' (' + String(j.timestamp).slice(0, 10) + ')' : '';
+                    const running = j.state === 'running' ? ' 🔄' : '';
+                    const opt = document.createElement('option');
+                    opt.value = j.id;
+                    opt.textContent = `Job #${j.id}${running} — ${type}${model}${target}${comment}${ts}`;
+                    sel.appendChild(opt);
+                }
+                if (currentVal && [...sel.options].some(o => o.value === currentVal)) {
+                    sel.value = currentVal;
+                }
+            } catch (err) {
+                console.error('Error loading jobs selector:', err);
+            }
+        }
+
+        document.getElementById('job-selector')?.addEventListener('change', (e) => {
+            const val = e.target.value;
+            selectedJobId = val ? parseInt(val, 10) : null;
+            wmLoadAndRender();
+        });
+
+        // Start WebMap on load
+        loadJobsSelector();
+        wmStart();
+    </script>
+</body>
+</html>

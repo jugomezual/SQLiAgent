@@ -1,0 +1,28 @@
+{
+    "detected_urls": [
+        "http://10.0.0.12/WackoPicko/users/login.php",
+        "http://10.0.0.12/mutillidae/includes/pop-up-help-context-generator.php",
+        "http://10.0.0.12/mutillidae/level-1-hints-page-wrapper.php",
+        "http://10.0.0.12/mutillidae/webservices/rest/ws-user-account.php",
+        "http://10.0.0.12/mutillidae/index.php",
+        "http://10.0.0.12/getboo/comment.php",
+        "http://10.0.0.12/getboo/forgotpass.php",
+        "http://10.0.0.12/getboo/activate.php",
+        "http://10.0.0.12/getboo/redirect.php",
+        "http://10.0.0.12/vicnum/guessnum5.php",
+        "http://10.0.0.12/vicnum/unionguessnum.php",
+        "http://10.0.0.12/vicnum/unionjotto.php",
+        "http://10.0.0.12/owaspbricks/login-1/index.php",
+        "http://10.0.0.12/owaspbricks/login-2/index.php",
+        "http://10.0.0.12/owaspbricks/login-5/index.php",
+        "http://10.0.0.12/owaspbricks/content-1/index.php",
+        "http://10.0.0.12/owaspbricks/content-2/index.php",
+        "http://10.0.0.12/owaspbricks/content-3/index.php",
+        "http://10.0.0.12/owaspbricks/content-6/index.php",
+        "http://10.0.0.12/gtd-php/listChecklist.php",
+        "http://10.0.0.12/gtd-php/listItems.php",
+        "http://10.0.0.12/gtd-php/updateCategory.php",
+        "http://10.0.0.12/gtd-php/updateProject",
+        "http://10.0.0.12/peruggia/index.php"
+    ]
+}

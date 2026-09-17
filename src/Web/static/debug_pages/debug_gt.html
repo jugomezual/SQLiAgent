@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug GT — Web Security Analysis Suite</title>
+    <link rel="stylesheet" href="/websqli/static/_common/styles.css">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+        <div class="navbar-brand">SQLiAgent</div>
+        <div class="navbar-tabs">
+            <a class="nav-tab" href="/websqli/">SQLiAnalyzed</a>
+            <a class="nav-tab" href="/websqli/webmap">WebMap</a>
+            <a class="nav-tab" href="/websqli/tools">Tools</a>
+            <a class="nav-tab" href="/websqli/debug-timeline">Debug Timeline</a>
+            <a class="nav-tab active" href="/websqli/debug-gt">Debug GT</a>
+        </div>
+        <div class="navbar-right">
+            <span id="orchestrator-warning" class="ad-warning">⚠️ SQLi Agent Orchestrator not running</span>
+        </div>
+    </nav>
+
+    <!-- Debug GT Section -->
+    <div id="section-debug-gt" class="app-section" style="display:flex">
+        <!-- Job selection, relocated from the navbar -->
+        <div class="page-toolbar">
+            <span class="page-toolbar-label">Job</span>
+            <select id="job-selector" class="job-selector">
+                <option value="">— Select a job —</option>
+                <option value="all">— All Jobs —</option>
+            </select>
+            <button type="button" id="gt-download-csv-btn" class="page-btn" title="Download the coverage and extra-findings tables as CSV">⬇️ Download CSV</button>
+        </div>
+
+        <!-- Shown only when the target VM check comes back saturated -->
+        <div id="gt-target-warning" class="status-message" style="margin: 14px 32px 0;"></div>
+
+        <!-- Shown only when no job is selected -->
+        <div id="gt-empty-state" class="page-empty-state">No job selected.</div>
+
+        <!-- Shown only once a job is selected -->
+        <div id="gt-body" class="page-body-wrap" style="display:none">
+            <div class="wm-header">
+                <h2 class="wm-title">Debug GT — 10.0.0.12</h2>
+                <span id="gt-summary" class="wm-job-label"></span>
+            </div>
+
+            <div class="scanner-data-section">
+                <div class="scanner-section-header">
+                    <span class="scanner-section-icon">📋</span>
+                    <h4 class="scanner-section-title">Ground truth coverage</h4>
+                    <span id="gt-coverage-count" class="scanner-section-count">0</span>
+                </div>
+                <div class="scanner-table-wrap" id="gt-coverage-wrap">
+                    <p class="no-agents">Loading…</p>
+                </div>
+            </div>
+
+            <div class="scanner-data-section">
+                <div class="scanner-section-header">
+                    <span class="scanner-section-icon">📦</span>
+                    <h4 class="scanner-section-title">Coverage by app</h4>
+                    <span id="gt-app-count" class="scanner-section-count">0</span>
+                </div>
+                <div class="scanner-table-wrap" id="gt-app-wrap">
+                    <p class="no-agents">Loading…</p>
+                </div>
+            </div>
+
+            <div class="scanner-data-section">
+                <div class="scanner-section-header">
+                    <span class="scanner-section-icon">🚦</span>
+                    <h4 class="scanner-section-title">Vulnerabilities by priority</h4>
+                    <span id="gt-priority-count" class="scanner-section-count">0</span>
+                </div>
+                <div class="scanner-table-wrap" id="gt-priority-wrap">
+                    <p class="no-agents">Loading…</p>
+                </div>
+            </div>
+
+            <div class="scanner-data-section">
+                <div class="scanner-section-header">
+                    <span class="scanner-section-icon">➕</span>
+                    <h4 class="scanner-section-title">Extra findings (vulnerable, not in ground truth)</h4>
+                    <span id="gt-extra-count" class="scanner-section-count">0</span>
+                </div>
+                <div class="scanner-table-wrap" id="gt-extra-wrap">
+                    <p class="no-agents">Loading…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="gt-detail-modal" class="modal-overlay" style="display:none">
+        <div class="modal-dialog v2-task-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="gt-modal-title">Detail</h3>
+                <button class="modal-close-btn" id="gt-modal-close-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="v2-task-priority" id="gt-modal-priority" style="display:none"></div>
+                <dl class="v2-task-detail-list" id="gt-modal-fields"></dl>
+                <div class="v2-log-section" id="gt-modal-log-section" style="display:none">
+                    <div class="v2-log-label">SQLMap Log</div>
+                    <pre class="v2-log-pre" id="gt-modal-log"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Layer -->
+    <script src="/websqli/static/_common/api.js"></script>
+    <!-- Debug GT -->
+    <script src="/websqli/static/debug_pages/debug_gt.js"></script>
+    <script>
+        // Job selector logic
+        let selectedJobId = null;
+
+        async function loadJobsSelector() {
+            try {
+                const data = await API.getJobs();
+                const jobs = data.jobs || [];
+                const sel = document.getElementById('job-selector');
+                if (!sel) return;
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">— Select a job —</option><option value="all">— All Jobs —</option>';
+                for (const j of jobs) {
+                    const type    = j.type || 'Normal';
+                    const model   = j.model ? ` · ${j.model}` : '';
+                    const target  = j.target_url ? ` ${j.target_url}` : '';
+                    const comment = j.comment ? ` — ${j.comment}` : '';
+                    const ts      = j.timestamp ? ' (' + String(j.timestamp).slice(0, 10) + ')' : '';
+                    const running = j.state === 'running' ? ' 🔄' : '';
+                    const opt = document.createElement('option');
+                    opt.value = j.id;
+                    opt.textContent = `Job #${j.id}${running} — ${type}${model}${target}${comment}${ts}`;
+                    sel.appendChild(opt);
+                }
+                if (currentVal && [...sel.options].some(o => o.value === currentVal)) {
+                    sel.value = currentVal;
+                }
+            } catch (err) {
+                console.error('Error loading jobs selector:', err);
+            }
+        }
+
+        document.getElementById('job-selector')?.addEventListener('change', (e) => {
+            const val = e.target.value;
+            selectedJobId = val === 'all' ? 'all' : (val ? parseInt(val, 10) : null);
+            gtLoadAndRender();
+        });
+
+        // Start Debug GT on load
+        loadJobsSelector();
+        gtStart();
+    </script>
+</body>
+</html>
