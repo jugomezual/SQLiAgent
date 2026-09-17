@@ -15,7 +15,7 @@ DB_PASSWORD=hola00==
 # a URL on :11434 uses Ollama; a URL on :8080 uses OpenWebUI (IA_LLAMA_API_KEY).
 # Set only what your chosen backend needs and leave the rest empty.
 # ─────────────────────────────────────────────────────────────────────────
-IA_MODELO=gemma3:12b
+IA_MODELO=gemma4:26b
 IA_LLAMA_API_URL=http://10.0.1.4:11434/api/generate
 IA_API_KEY=
 IA_LLAMA_API_KEY=
