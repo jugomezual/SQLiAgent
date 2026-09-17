@@ -7,7 +7,7 @@ DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=sqli_tfg
 DB_USER=root
-DB_PASSWORD=hola00==
+DB_PASSWORD=Changeme
 
 # ─────────────────────────────────────────────────────────────────────────
 # AI / LLM — consumed by src/ia/ia.py. The backend is chosen automatically
